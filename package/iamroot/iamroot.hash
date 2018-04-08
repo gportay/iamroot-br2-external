@@ -1,0 +1,5 @@
+# From https://github.com/gportay/iamroot/archive/v17/iamroot-17.tar.gz
+sha256  1d78d29eff289407fb3c9c11c3bcb2df7897b047b8b46563b024530e4e49b0be  iamroot-17.tar.gz
+# License files, locally calculated
+sha256  20c17d8b8c48a600800dfd14f95d5cb9ff47066a9641ddeab48dc54aec96e331  LICENSE
+sha256  f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af  COPYRIGHT.musl
