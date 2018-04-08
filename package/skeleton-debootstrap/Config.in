@@ -1,0 +1,106 @@
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_ARCH_SUPPORTS
+	bool
+	default y if BR2_arm || BR2_aarch64 || \
+		( BR2_mipsel && BR2_mips_32r2 && !BR2_MIPS_SOFT_FLOAT ) || \
+		( BR2_mips64el && BR2_MIPS_NABI64 && !BR2_MIPS_SOFT_FLOAT ) || \
+		BR2_powerpc64 || BR2_powerpc64le || \
+		( BR2_riscv && BR2_RISCV_64 && BR2_RISCV_ABI_LP64D ) || \
+		BR2_s390x || \
+		BR2_i386 || BR2_x86_64
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP
+	bool "skeleton debootstrap"
+	depends on BR2_PACKAGE_SKELETON_DEBOOTSTRAP_ARCH_SUPPORTS
+	select BR2_INIT_NONE
+	select BR2_PACKAGE_HOST_IAMROOT
+
+if BR2_PACKAGE_SKELETON_DEBOOTSTRAP
+
+choice BR2_PACKAGE_SKELETON_DEBOOTSTRAP_SUITE
+	prompt suite
+	default BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_STABLE_SUITE
+	help
+	  The SUITE may be a release code name (eg, sid,
+	  stretch, jessie) or a symbolic name (eg, unstable,
+	  testing, stable, oldstable).
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_12_BOOKWORM_SUITE
+	bool "Debian 12 (bookworm)"
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_11_BULLSEYE_SUITE
+	bool "Debian 11 (bullseye)"
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_10_BUSTER_SUITE
+	bool "Debian 10 (buster)"
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_OLDOLDSTABLE_SUITE
+	bool "Debian oldoldstable"
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_OLDSTABLE_SUITE
+	bool "Debian oldstable"
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_STABLE_SUITE
+	bool "Debian stable"
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_TESTING_SUITE
+	bool "Debian testing"
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_DEBIAN_UNSTABLE_SUITE
+	bool "Debian unstable"
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_CUSTOM_SUITE
+	bool "custom"
+
+endchoice
+
+if BR2_PACKAGE_SKELETON_DEBOOTSTRAP_CUSTOM_SUITE
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_CUSTOM_SUITE_NAME
+	string "stable"
+
+endif
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_MIRROR
+	string "mirror"
+	default "https://deb.debian.org/debian"
+	help
+	   MIRROR can be an http:// or https:// URL, a
+	   file:/// URL, or an ssh:/// URL.
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_SCRIPT
+	string "script"
+	default ""
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_INCLUDE
+	string "include packages"
+	default ""
+	help
+	  Adds specified names to the list of base packages.
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_EXCLUDE
+	string "exclude packages"
+	default ""
+	help
+	  Removes specified packages from the list.
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_EXTRA_SUITES
+	string "extra suites"
+	default ""
+	help
+	  Also use packages from the listed suites of the
+	  archive.
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_COMPONENTS
+	string "components"
+	default ""
+	help
+	  use packages from the listed components of the
+	  archive.
+
+config BR2_PACKAGE_SKELETON_DEBOOTSTRAP_MERGED_USR
+	bool "merged-usr"
+	default y
+	help
+	  Make /{bin,sbin,lib}/ symlinks to /usr/.
+
+endif
