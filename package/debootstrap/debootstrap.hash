@@ -1,0 +1,4 @@
+# Locally calculated
+sha256  03c1dfbff2f9936acea3954b9c92e348e7e216f706c202744f80c9f1302329b4  debootstrap_1.0.134.tar.gz
+# License files, locally calculated
+sha256  c571036fd20c881f599a94b9b429ac45047d9d6fb3d6088e1a03fa46b4b2f76f  debian/copyright
