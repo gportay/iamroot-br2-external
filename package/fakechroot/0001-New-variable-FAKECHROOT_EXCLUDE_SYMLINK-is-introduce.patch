@@ -1,0 +1,319 @@
+From 4c90ba4c17923b1ddb7750e0c1b5237bbd19cc18 Mon Sep 17 00:00:00 2001
+From: =?utf-8?q?Ga=C3=ABl=20PORTAY?= <gael.portay@collabora.com>
+Date: Wed, 5 Aug 2020 20:17:30 -0400
+Subject: [PATCH] New variable FAKECHROOT_EXCLUDE_SYMLINK is introduced
+
+The fakechroot command expands all absolute symlinks with the chroot
+base directory.
+
+But fakechroot is also used to create a root file-system and it is
+required to keep these absolute symlinks not expanded; the symlinks will
+be broken once the rootfs is mounted.
+
+Some utilities make absolute symlinks that should not be expanded as
+they are local to the rootfs.
+
+For example, systemctl creates absolute symlinks to enable new services
+below the directory /etc/systemd. The machine-id is also a symlink.
+---
+ man/fakechroot.pod         | 14 +++++-
+ scripts/debootstrap.env.sh |  4 ++
+ scripts/dnf.env.sh         |  4 ++
+ scripts/chroot.env.sh      |  4 ++
+ scripts/rinse.env.sh       |  4 ++
+ src/libfakechroot.c        | 94 +++++++++++++++++++++++++++-----------
+ src/libfakechroot.h        |  1 +
+ src/symlink.c              |  3 +-
+ src/symlinkat.c            |  3 +-
+ test/common.inc.sh         |  2 +-
+ test/t/zzdebootstrap.t     |  2 +-
+ 11 files changed, 101 insertions(+), 32 deletions(-)
+
+diff --git a/man/fakechroot.pod b/man/fakechroot.pod
+index 5d3514e..2ff8891 100644
+--- a/man/fakechroot.pod
++++ b/man/fakechroot.pod
+@@ -70,7 +70,8 @@ directly.
+ Load additional configuration with environment. This configuration file
+ is a shell script which is executed before calling I<command>. The
+ script can set additional environment variables, like i.e.:
+-C<FAKECHROOT_EXCLUDE_PATH>, C<FAKECHROOT_CMD_SUBST> or C<LD_LIBRARY_PATH>.
++C<FAKECHROOT_EXCLUDE_PATH>, C<FAKECHROOT_EXCLUDE_SYMLINK>,
++C<FAKECHROOT_CMD_SUBST> or C<LD_LIBRARY_PATH>.
+ 
+ The environment type is guessed based on command name with optional extension
+ removed (e.g. running F<gettext.sh> loads C<gettext> environment file). If
+@@ -298,6 +299,17 @@ environment variable is not set.
+ 
+ This list has to contain at most 100 elements.
+ 
++=item B<FAKECHROOT_EXCLUDE_SYMLINK>
++
++The list of absolute symlinks or directories which are excluded from being
++expanded. The elements of list are separated with colon.
++
++The symlink F</var/lib/dbus/machine-id> and the symlinks below the directory
++F</etc/systemd> are excluded by default if this environment variable is not
++set.
++
++This list has to contain at most 100 elements.
++
+ =item B<FAKECHROOT_EXTRA_LIBRARY_PATH>
+ 
+ The list of extra directories in fake chroot environment that are added to
+diff --git a/scripts/chroot.env.sh b/scripts/chroot.env.sh
+index a603fa0..bfcd437 100644
+--- a/scripts/chroot.env.sh
++++ b/scripts/chroot.env.sh
+@@ -23,3 +23,7 @@ export FAKECHROOT_CMD_SUBST
+ # Set the default list of directories excluded from being chrooted
+ FAKECHROOT_EXCLUDE_PATH="${FAKECHROOT_EXCLUDE_PATH:-/dev:/proc:/sys}"
+ export FAKECHROOT_EXCLUDE_PATH
++
++# Set the default list of symlinks excluded from being chrooted
++FAKECHROOT_EXCLUDE_SYMLINK="${FAKECHROOT_EXCLUDE_SYMLINK:-/etc/systemd:/var/lib/dbus/machine-id}"
++export FAKECHROOT_EXCLUDE_SYMLINK
+diff --git a/scripts/debootstrap.env.sh b/scripts/debootstrap.env.sh
+index 73e3120..c8d65b1 100644
+--- a/scripts/debootstrap.env.sh
++++ b/scripts/debootstrap.env.sh
+@@ -27,6 +27,10 @@ export FAKECHROOT_CMD_SUBST
+ FAKECHROOT_EXCLUDE_PATH="${FAKECHROOT_EXCLUDE_PATH:-/dev:/proc:/sys}"
+ export FAKECHROOT_EXCLUDE_PATH
+ 
++# Set the default list of symlinks excluded from being chrooted
++FAKECHROOT_EXCLUDE_SYMLINK="${FAKECHROOT_EXCLUDE_SYMLINK:-/etc/systemd:/var/lib/dbus/machine-id}"
++export FAKECHROOT_EXCLUDE_SYMLINK
++
+ # Change path for unix sockets because we don't want to exceed 108 bytes
+ FAKECHROOT_AF_UNIX_PATH=/tmp
+ export FAKECHROOT_AF_UNIX_PATH
+diff --git a/scripts/rinse.env.sh b/scripts/rinse.env.sh
+index c6ba49f..7511e07 100755
+--- a/scripts/rinse.env.sh
++++ b/scripts/rinse.env.sh
+@@ -24,6 +24,10 @@ FAKECHROOT_CMD_SUBST="${FAKECHROOT_CMD_SUBST:+$FAKECHROOT_CMD_SUBST:}`echo "$fak
+ FAKECHROOT_EXCLUDE_PATH="${FAKECHROOT_EXCLUDE_PATH:-/dev:/proc:/sys}"
+ export FAKECHROOT_EXCLUDE_PATH
+ 
++# Set the default list of symlinks excluded from being chrooted
++FAKECHROOT_EXCLUDE_SYMLINK="${FAKECHROOT_EXCLUDE_SYMLINK:-/etc/systemd:/var/lib/dbus/machine-id}"
++export FAKECHROOT_EXCLUDE_SYMLINK
++
+ # Change path for unix sockets because we don't want to exceed 108 bytes
+ FAKECHROOT_AF_UNIX_PATH=/tmp
+ export FAKECHROOT_AF_UNIX_PATH
+diff --git a/src/libfakechroot.c b/src/libfakechroot.c
+index 16d597e..c2863da 100644
+--- a/src/libfakechroot.c
++++ b/src/libfakechroot.c
+@@ -46,6 +46,9 @@
+ static char *exclude_list[EXCLUDE_LIST_SIZE];
+ static int exclude_length[EXCLUDE_LIST_SIZE];
+ static int list_max = 0;
++static char *exclude_symlink_list[EXCLUDE_LIST_SIZE];
++static int exclude_symlink_length[EXCLUDE_LIST_SIZE];
++static int exclude_symlink_max = 0;
+ static int first = 0;
+ 
+ 
+@@ -58,6 +61,7 @@ char *preserve_env_list[] = {
+     "FAKECHROOT_ELFLOADER",
+     "FAKECHROOT_ELFLOADER_OPT_ARGV0",
+     "FAKECHROOT_EXCLUDE_PATH",
++    "FAKECHROOT_EXCLUDE_SYMLINK",
+     "FAKECHROOT_LDLIBPATH",
+     "FAKECHROOT_VERSION",
+     "FAKEROOTKEY",
+@@ -87,6 +91,21 @@ LOCAL int fakechroot_debug (const char *fmt, ...)
+     return ret;
+ }
+ 
++#define exclude_init(path, list, length, list_max) \
++    { \
++        int i; \
++            for (i = 0; list_max < EXCLUDE_LIST_SIZE; ) { \
++                int j; \
++                for (j = i; path[j] != ':' && path[j] != '\0'; j++); \
++                list[list_max] = malloc(j - i + 2); \
++                memset(list[list_max], '\0', j - i + 2); \
++                strncpy(list[list_max], &(path[i]), j - i); \
++                length[list_max] = strlen(list[list_max]); \
++                list_max++; \
++                if (path[j] != ':') break; \
++                i = j + 1; \
++            } \
++    }
+ 
+ #include "getcwd.h"
+ 
+@@ -113,25 +132,17 @@ void fakechroot_init (void)
+     debug("FAKECHROOT_CMD_ORIG=\"%s\"", getenv("FAKECHROOT_CMD_ORIG"));
+ 
+     if (!first) {
+-        char *exclude_path = getenv("FAKECHROOT_EXCLUDE_PATH");
+-
+         first = 1;
+ 
+         /* We get a list of directories or files */
+-        if (exclude_path) {
+-            int i;
+-            for (i = 0; list_max < EXCLUDE_LIST_SIZE; ) {
+-                int j;
+-                for (j = i; exclude_path[j] != ':' && exclude_path[j] != '\0'; j++);
+-                exclude_list[list_max] = malloc(j - i + 2);
+-                memset(exclude_list[list_max], '\0', j - i + 2);
+-                strncpy(exclude_list[list_max], &(exclude_path[i]), j - i);
+-                exclude_length[list_max] = strlen(exclude_list[list_max]);
+-                list_max++;
+-                if (exclude_path[j] != ':') break;
+-                i = j + 1;
+-            }
+-        }
++        char *exclude_path = getenv("FAKECHROOT_EXCLUDE_PATH");
++        if (exclude_path)
++            exclude_init(exclude_path, exclude_list, exclude_length, list_max);
++
++        /* We get a list of symlinks */
++        exclude_path = getenv("FAKECHROOT_EXCLUDE_SYMLINK");
++        if (exclude_path)
++            exclude_init(exclude_path, exclude_symlink_list, exclude_symlink_length, exclude_symlink_max);
+ 
+         __setenv("FAKECHROOT", "true", 1);
+         __setenv("FAKECHROOT_VERSION", FAKECHROOT, 1);
+@@ -152,6 +163,23 @@ LOCAL fakechroot_wrapperfn_t fakechroot_loadfunc (struct fakechroot_wrapper * w)
+ }
+ 
+ 
++/* Check if is path is on exclude list */
++LOCAL int fakechroot_is_excluded (const char * v_path, char * const exclude_list[], int exclude_length[], int list_max)
++{
++    const size_t len = strlen(v_path);
++    int i;
++
++    for (i = 0; i < list_max; i++) {
++        if (exclude_length[i] > len ||
++            v_path[exclude_length[i] - 1] != (exclude_list[i])[exclude_length[i] - 1] ||
++            strncmp(exclude_list[i], v_path, exclude_length[i]) != 0) continue;
++        if (exclude_length[i] == len || v_path[exclude_length[i]] == '/') return 1;
++    }
++
++    return 0;
++}
++
++
+ /* Check if path is on exclude list */
+ LOCAL int fakechroot_localdir (const char * p_path)
+ {
+@@ -172,19 +200,31 @@ LOCAL int fakechroot_localdir (const char * p_path)
+     }
+ 
+     /* We try to find if we need direct access to a file */
+-    {
+-        const size_t len = strlen(v_path);
+-        int i;
+-
+-        for (i = 0; i < list_max; i++) {
+-            if (exclude_length[i] > len ||
+-                    v_path[exclude_length[i] - 1] != (exclude_list[i])[exclude_length[i] - 1] ||
+-                    strncmp(exclude_list[i], v_path, exclude_length[i]) != 0) continue;
+-            if (exclude_length[i] == len || v_path[exclude_length[i]] == '/') return 1;
+-        }
++    return fakechroot_is_excluded (v_path, exclude_list, exclude_length, list_max);
++}
++
++
++/* Check if symlink is on exclude list */
++LOCAL int fakechroot_localsymlink (const char * p_path)
++{
++    char *v_path = (char *)p_path;
++    char cwd_path[FAKECHROOT_PATH_MAX];
++
++    if (!p_path)
++        return 0;
++
++    if (!first)
++        fakechroot_init();
++
++    /* We need to expand relative paths */
++    if (p_path[0] != '/') {
++        getcwd_real(cwd_path, FAKECHROOT_PATH_MAX);
++        v_path = cwd_path;
++        narrow_chroot_path(v_path);
+     }
+ 
+-    return 0;
++    /* We try to find if we need direct access to a file */
++    return fakechroot_is_excluded(v_path, exclude_symlink_list, exclude_symlink_length, exclude_symlink_max);
+ }
+ 
+ 
+diff --git a/src/libfakechroot.h b/src/libfakechroot.h
+index 4cf199f..1a5e03b 100644
+--- a/src/libfakechroot.h
++++ b/src/libfakechroot.h
+@@ -216,6 +216,7 @@ extern const int preserve_env_list_count;
+ int fakechroot_debug (const char *, ...);
+ fakechroot_wrapperfn_t fakechroot_loadfunc (struct fakechroot_wrapper *);
+ int fakechroot_localdir (const char *);
++int fakechroot_localsymlink (const char *);
+ int fakechroot_try_cmd_subst (char *, const char *, char *);
+ 
+ 
+diff --git a/src/symlink.c b/src/symlink.c
+index ce58f3d..5ef0430 100644
+--- a/src/symlink.c
++++ b/src/symlink.c
+@@ -29,7 +29,8 @@ wrapper(symlink, int, (const char * oldpath, const char * newpath))
+     char fakechroot_buf[FAKECHROOT_PATH_MAX];
+     char tmp[FAKECHROOT_PATH_MAX];
+     debug("symlink(\"%s\", \"%s\")", oldpath, newpath);
+-    expand_chroot_rel_path(oldpath);
++    if (!fakechroot_localsymlink(newpath))
++        expand_chroot_rel_path(oldpath);
+     strcpy(tmp, oldpath);
+     oldpath = tmp;
+     expand_chroot_path(newpath);
+diff --git a/src/symlinkat.c b/src/symlinkat.c
+index 3ae8bb7..33cc52a 100644
+--- a/src/symlinkat.c
++++ b/src/symlinkat.c
+@@ -32,7 +32,8 @@ wrapper(symlinkat, int, (const char * oldpath, int newdirfd, const char * newpat
+     char fakechroot_buf[FAKECHROOT_PATH_MAX];
+     char tmp[FAKECHROOT_PATH_MAX];
+     debug("symlinkat(\"%s\", %d, \"%s\")", oldpath, newdirfd, newpath);
+-    expand_chroot_rel_path(oldpath);
++    if (!fakechroot_localsymlink(newpath))
++        expand_chroot_rel_path(oldpath);
+     strcpy(tmp, oldpath);
+     oldpath = tmp;
+     expand_chroot_path_at(newdirfd, newpath);
+diff --git a/test/common.inc.sh b/test/common.inc.sh
+index cc35931..5d693a6 100644
+--- a/test/common.inc.sh
++++ b/test/common.inc.sh
+@@ -27,7 +27,7 @@ prepare () {
+     "$srcdir/testtree.sh" $testtree
+     test "`cat $testtree/CHROOT 2>&1`" = "$testtree" || bail_out "cannot create $testtree"
+ 
+-    unset FAKECHROOT_CMD_SUBST FAKECHROOT_DEBUG FAKECHROOT_EXCLUDE_PATH
++    unset FAKECHROOT_CMD_SUBST FAKECHROOT_DEBUG FAKECHROOT_EXCLUDE_PATH FAKECHROOT_EXCLUDE_SYMLINK
+ }
+ 
+ . "$srcdir/seq.inc.sh"
+diff --git a/test/t/zzdebootstrap.t b/test/t/zzdebootstrap.t
+index d5024de..b1b6cb2 100755
+--- a/test/t/zzdebootstrap.t
++++ b/test/t/zzdebootstrap.t
+@@ -19,7 +19,7 @@ fi
+ 
+ plan 1
+ 
+-unset FAKECHROOT_CMD_SUBST FAKECHROOT_DEBUG FAKECHROOT_EXCLUDE_PATH
++unset FAKECHROOT_CMD_SUBST FAKECHROOT_DEBUG FAKECHROOT_EXCLUDE_PATH FAKECHROOT_EXCLUDE_SYMLINK
+ 
+ rm -rf $testtree
+ 
+-- 
+2.29.2
+
