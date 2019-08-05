@@ -1,3 +1,11 @@
+menu "System configuration"
+
+source "$BR2_EXTERNAL_IAMROOT_PATH/package/skeleton-pacstrap/Config.in"
+
+endmenu
+
+menu "Host utilities"
+
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinux-keyring/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinux32-keyring/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinuxarm-keyring/Config.in.host"
@@ -7,3 +15,5 @@ source "$BR2_EXTERNAL_IAMROOT_PATH/package/iamroot/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/libcurl/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/manjaro-keyring/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/pacman/Config.in.host"
+
+endmenu
