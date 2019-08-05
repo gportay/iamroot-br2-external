@@ -1,0 +1,1 @@
+source "$BR2_EXTERNAL_LINUX_DISTROS_PATH/package/skeleton-archlinux/Config.in.options"
