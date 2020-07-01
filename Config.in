@@ -1,2 +1,3 @@
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/iamroot/Config.in.host"
+source "$BR2_EXTERNAL_IAMROOT_PATH/package/pacman-mirrorlist/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/pacman/Config.in.host"

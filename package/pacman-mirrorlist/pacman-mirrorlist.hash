@@ -1,0 +1,4 @@
+# Locally calculated
+sha256 9b90524723684d0e6680417352dc8e3647f8a53b830b1f25dfdfb6496e5c9903  pacman-mirrorlist-20230410-1-any.pkg.tar.zst
+sha256 2d810cd9b1e678bc137c1623a3a69b6edb8d89a9fcfeb96ebde42dc82789a078  pacman-mirrorlist-20230206-1-any.pkg.tar.xz
+sha256 cddc44f9095a23fea8f095564e3755f0b73498dc2a90c3ce5dc746a9e3791fb7  pacman-mirrorlist-20230111-1-any.pkg.tar.zst
