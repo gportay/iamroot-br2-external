@@ -1,0 +1,6 @@
+config BR2_PACKAGE_HOST_ARCHLINUXARM_KEYRING
+	bool "host archlinuxarm-keyring"
+	help
+	  Arch Linux ARM PGP keyring
+
+	  https://github.com/archlinuxarm/archlinuxarm-keyring
