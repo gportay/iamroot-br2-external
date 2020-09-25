@@ -1,0 +1,102 @@
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_ARCH_SUPPORTS
+	bool
+	default y if BR2_arm || BR2_aarch64 || \
+		BR2_powerpc64le || BR2_s390x || \
+		BR2_i386 || BR2_x86_64
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS
+	bool "skeleton-alpine-make-rootfs"
+	depends on BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_ARCH_SUPPORTS
+	select BR2_INIT_NONE
+	select BR2_PACKAGE_HOST_ALPINE_MAKE_ROOTFS
+	select BR2_PACKAGE_HOST_APK_TOOLS
+	select BR2_PACKAGE_HOST_CA_CERTIFICATES
+	select BR2_PACKAGE_HOST_IAMROOT
+
+if BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_NO_DEFAULT_BASE_PACKAGES
+	bool "no default base packages"
+	default n
+	help
+	  Don't install the default base packages
+	  (alpine-baselayout busybox busybox-suid musl-utils),
+	  i.e. only the packages specified in --packages will
+	  be installed. Use only if you know what are you
+	  doing!
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_PACKAGES
+	string "additional packages"
+	default "alpine-baselayout busybox busybox-suid musl-utils" if BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_NO_DEFAULT_BASE_PACKAGES
+	default ""
+	help
+	  Additional packages to install into the rootfs.
+
+choice BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_BRANCH
+	prompt branch
+	default BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_LATEST_STABLE_BRANCH
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_9_BRANCH
+	bool "3.9"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_10_BRANCH
+	bool "3.10"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_11_BRANCH
+	bool "3.11"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_12_BRANCH
+	bool "3.12"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_13_BRANCH
+	bool "3.13"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_14_BRANCH
+	bool "3.14"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_15_BRANCH
+	bool "3.15"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_16_BRANCH
+	bool "3.16"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_17_BRANCH
+	bool "3.17"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_18_BRANCH
+	bool "3.18"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_3_19_BRANCH
+	bool "3.19"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_LATEST_STABLE_BRANCH
+	bool "latest-stable"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_EDGE_BRANCH
+	bool "edge"
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_CUSTOM_BRANCH
+	bool "custom"
+
+endchoice
+
+if BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_CUSTOM_BRANCH
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_CUSTOM_BRANCH_NAME
+	string "latest-stable"
+
+endif
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_REPOSITORIES
+	string "repositories"
+	default "main community"
+	help
+	  Alpine list of repositories to check.
+
+config BR2_PACKAGE_SKELETON_ALPINE_MAKE_ROOTFS_MIRROR
+	string "mirror"
+	default "https://nl.alpinelinux.org/alpine"
+	help
+	  URI of the Aports mirror to fetch packages.
+
+endif
