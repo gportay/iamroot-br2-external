@@ -1,1 +1,2 @@
+source "$BR2_EXTERNAL_IAMROOT_PATH/package/skeleton-alpinelinux/Config.in.options"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/skeleton-archlinux/Config.in.options"
