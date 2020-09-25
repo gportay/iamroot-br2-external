@@ -40,6 +40,27 @@ define HOST_GCC_FINAL_INSTALL_SHARED_LIBS
 	done
 endef
 
+define TOOLCHAIN_EXTERNAL_MOVE
+        rm -rf $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)
+        mkdir -p $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)
+        mv $(@D)/* $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)/
+        if ! test -e $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)/$(TOOLCHAIN_EXTERNAL_PREFIX)/usr; then \
+                ln -sf . $(TOOLCHAIN_EXTERNAL_DOWNLOAD_INSTALL_DIR)/$(TOOLCHAIN_EXTERNAL_PREFIX)/usr; \
+        fi
+endef
+
+ifeq ($(BR2_ROOTFS_MERGED_USR),y)
+define SYSTEM_BIN_SBIN_LIB_DIRS
+	$(INSTALL) -d -m 0755 $(1)/usr/bin
+	$(INSTALL) -d -m 0755 $(1)/usr/sbin
+	$(INSTALL) -d -m 0755 $(1)/usr/lib
+endef
+else
+define SYSTEM_BIN_SBIN_LIB_DIRS
+	$(INSTALL) -d -m 0755 $(1)/usr/lib
+endef
+endif
+
 target-finalize:;
 	@$(call MESSAGE,"Finalizing target directory hacked!")
 
