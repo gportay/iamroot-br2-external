@@ -6,6 +6,7 @@ endmenu
 
 menu "Host utilities"
 
+source "$BR2_EXTERNAL_IAMROOT_PATH/package/apk-tools/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinux-keyring/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinux32-keyring/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinuxarm-keyring/Config.in.host"
