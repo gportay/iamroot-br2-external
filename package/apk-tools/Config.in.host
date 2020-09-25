@@ -1,0 +1,11 @@
+config BR2_PACKAGE_HOST_APK_TOOLS
+	bool "host apk-tools"
+	select BR2_PACKAGE_HOST_OPENSSL
+	select BR2_PACKAGE_HOST_PKGCONF
+	select BR2_PACKAGE_HOST_ZLIB
+	help
+	  Alpine Package Keeper (apk) is a package manager
+	  originally built for Alpine Linux, but now used by
+	  several other distributions as well.
+
+	  https://gitlab.alpinelinux.org/alpine/apk-tools
