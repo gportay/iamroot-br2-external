@@ -1,5 +1,6 @@
 menu "System configuration"
 
+source "$BR2_EXTERNAL_IAMROOT_PATH/package/skeleton-alpinelinux/Config.in.options"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/skeleton-pacstrap/Config.in"
 
 endmenu
