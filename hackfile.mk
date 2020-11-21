@@ -17,6 +17,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
+GLIBC_INSTALL_TARGET = NO
+MUSL_INSTALL_TARGET = NO
+UCLIBC_INSTALL_TARGET = NO
+
 include Makefile
 
 target-finalize:;
