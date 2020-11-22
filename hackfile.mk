@@ -54,3 +54,18 @@ endif
 
 target-finalize:;
 	@$(call MESSAGE,"Finalizing target directory hacked!")
+
+	$(foreach d, $(call qstrip,$(BR2_ROOTFS_OVERLAY)), \
+		@$(call MESSAGE,"Copying overlay $(d)")$(sep) \
+		$(Q)$(call SYSTEM_RSYNC,$(d),$(TARGET_DIR))$(sep))
+
+	$(Q)$(if $(TARGET_DIR_FILES_LISTS), \
+		cat $(TARGET_DIR_FILES_LISTS)) > $(BUILD_DIR)/packages-file-list.txt
+	$(Q)$(if $(HOST_DIR_FILES_LISTS), \
+		cat $(HOST_DIR_FILES_LISTS)) > $(BUILD_DIR)/packages-file-list-host.txt
+	$(Q)$(if $(STAGING_DIR_FILES_LISTS), \
+		cat $(STAGING_DIR_FILES_LISTS)) > $(BUILD_DIR)/packages-file-list-staging.txt
+
+	$(foreach s, $(call qstrip,$(BR2_ROOTFS_POST_BUILD_SCRIPT)), \
+		@$(call MESSAGE,"Executing post-build script $(s)")$(sep) \
+		$(Q)$(EXTRA_ENV) $(s) $(TARGET_DIR) $(call qstrip,$(BR2_ROOTFS_POST_SCRIPT_ARGS))$(sep))
