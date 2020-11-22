@@ -47,6 +47,11 @@ TOOLCHAIN_EXTERNAL_INSTALL_TARGET = NO
 
 include Makefile
 
+# gcc-final install libraries (atomic, gcc_s...) to staging directory, resets
+# the variables GCC_FINAL_LIBS and GCC_FINAL_USR_LIBS.
+GCC_FINAL_LIBS =
+GCC_FINAL_USR_LIBS =
+
 # PowerPC64 big endian by default uses the elfv1 ABI, and PowerPC64 little
 # endian by default uses the elfv2 ABI. However, Arch POWER has decided to use
 # the elfv2 ABI for both, so we force the ABI for PowerPC64 big endian when the
