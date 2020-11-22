@@ -23,6 +23,23 @@ UCLIBC_INSTALL_TARGET = NO
 
 include Makefile
 
+define HOST_GCC_FINAL_INSTALL_LIBGCC
+	-cp -dpf $(HOST_GCC_FINAL_GCC_LIB_DIR)/libgcc_s* \
+		$(STAGING_DIR)/lib/
+endef
+
+define HOST_GCC_FINAL_INSTALL_LIBATOMIC
+	-cp -dpf $(HOST_GCC_FINAL_GCC_LIB_DIR)/libatomic* \
+		$(STAGING_DIR)/lib/
+endef
+
+define HOST_GCC_FINAL_INSTALL_SHARED_LIBS
+	for i in $(HOST_GCC_FINAL_USR_LIBS) ; do \
+		cp -dpf $(HOST_GCC_FINAL_GCC_LIB_DIR)/$${i}.so* \
+			$(STAGING_DIR)/usr/lib/ ; \
+	done
+endef
+
 target-finalize:;
 	@$(call MESSAGE,"Finalizing target directory hacked!")
 
