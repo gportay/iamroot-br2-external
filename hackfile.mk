@@ -50,3 +50,12 @@ target-finalize:;
 	$(foreach s, $(call qstrip,$(BR2_ROOTFS_POST_BUILD_SCRIPT)), \
 		@$(call MESSAGE,"Executing post-build script $(s)")$(sep) \
 		$(Q)$(EXTRA_ENV) $(s) $(TARGET_DIR) $(call qstrip,$(BR2_ROOTFS_POST_SCRIPT_ARGS))$(sep))
+
+	@$(call MESSAGE,"Sanity check in target")
+	$(Q)host_symlinks="$$(cd $(TARGET_DIR); find -type l -exec file {} \; | grep $(BASE_DIR))"; \
+	test -n "$$host_symlinks" && { \
+		echo "ERROR: The symlinks in $(TARGET_DIR) is expanded" \
+			"with $(BASE_DIR) for the following symlinks:"; \
+		echo "$$host_symlinks"; \
+		exit 1; \
+	} || true
