@@ -40,3 +40,24 @@ then
 
 	sed -e "s,^root:[^:]*:,root:$passwd:," -i "$TARGET_DIR/etc/shadow"
 fi
+
+hostname="$(config_string "BR2_TARGET_GENERIC_HOSTNAME")"
+if [[ "$hostname" ]]
+then
+	hostnames=("$hostname")
+	IFS=. read -a domains <<<"$hostname"
+	if [[ "${#domains[*]}" -gt 1 ]]
+	then
+		hostnames+=("${domains[0]}")
+	fi
+	echo "$hostname" >"$TARGET_DIR/etc/hostname"
+	sed -e "\$a \127.0.1.1\t${hostnames[*]}" \
+	    -e '/^127.0.1.1/d' \
+	    -i "$TARGET_DIR/etc/hosts"
+fi
+
+issue="$(config_string "BR2_TARGET_GENERIC_ISSUE")"
+if [[ "$issue" ]]
+then
+	echo -e "$issue" >"$TARGET_DIR/etc/issue"
+fi
