@@ -1,0 +1,6 @@
+config BR2_PACKAGE_HOST_ALPINE_KEYS
+	bool "host alpine-keys"
+	help
+	  Public keys for Alpine Linux packages
+
+	  https://git.alpinelinux.org/aports/tree/main/alpine-keys

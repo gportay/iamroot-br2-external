@@ -6,6 +6,7 @@ endmenu
 
 menu "Host utilities"
 
+source "$BR2_EXTERNAL_IAMROOT_PATH/package/alpine-keys/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/alpine-make-rootfs/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/apk-tools/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinux-keyring/Config.in.host"
