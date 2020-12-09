@@ -19,6 +19,14 @@ config_string() {
 	sed -n "/^$1/s,.*=\"\(.*\)\",\1,p" "$BR2_CONFIG"
 }
 
+sed -e '\:/dev/root / auto :d' -i "$TARGET_DIR"/etc/fstab
+if config_isset "BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW"
+then
+	echo "/dev/root / auto rw 0 1" >>"$TARGET_DIR"/etc/fstab
+else
+	echo "/dev/root / auto ro 0 1" >>"$TARGET_DIR/etc/fstab"
+fi
+
 if config_isset "BR2_TARGET_ENABLE_ROOT_LOGIN"
 then
 	passwd="$(config_string "BR2_TARGET_GENERIC_ROOT_PASSWD")"
