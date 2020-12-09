@@ -71,6 +71,17 @@ config BR2_TARGET_GENERIC_ROOT_PASSWD
 	  the very least use a strong cryptographic hash for your
 	  password!
 
+config BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW
+	bool "remount root filesystem read-write during boot"
+	default y
+	help
+	  The root filesystem is typically mounted read-only at boot.
+	  By default, buildroot remounts it in read-write mode early
+	  during the boot process.
+	  Say no here if you would rather like your root filesystem to
+	  remain read-only.
+	  If unsure, say Y.
+
 endif
 
 if BR2_PACKAGE_SKELETON_ALPINELINUX
