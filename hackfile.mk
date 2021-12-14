@@ -1,6 +1,6 @@
 # Hacked makefile for buildroot
 #
-# Copyright (C) 2020 by Gaël PORTAY <gael.portay@gmail.com>
+# Copyright (C) 2020-2021 by Gaël PORTAY <gael.portay@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,6 +22,11 @@ MUSL_INSTALL_TARGET = NO
 UCLIBC_INSTALL_TARGET = NO
 
 include Makefile
+
+ifndef ZSTDCAT
+ZSTDCAT = zstdcat
+INFLATE.zst = $(ZSTDCAT)
+endif
 
 define HOST_GCC_FINAL_INSTALL_LIBGCC
 	-cp -dpf $(HOST_GCC_FINAL_GCC_LIB_DIR)/libgcc_s* \
