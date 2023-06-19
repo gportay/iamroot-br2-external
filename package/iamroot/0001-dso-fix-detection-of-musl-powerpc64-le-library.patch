@@ -1,0 +1,35 @@
+From bae5a332107010b6cc01ed005249ee029fbdd9c8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ga=C3=ABl=20PORTAY?= <gael.portay@rtone.fr>
+Date: Mon, 19 Feb 2024 00:37:48 +0100
+Subject: [PATCH] dso: fix detection of musl powerpc64{,le} library
+
+This fixes commit d3e86cd38253a9d8d1b78ef201787affa1b792cf and commit
+7f032cda0802b853e83fbffb856886599c6c3824.
+---
+ dso.c        | 4 ++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/dso.c b/dso.c
+index ebc2fb04..dea52fbf 100644
+--- a/dso.c
++++ b/dso.c
+@@ -2120,14 +2120,14 @@ static const char *__getlibiamroot(Elf64_Ehdr *ehdr, const char *ldso,
+
+ 		/* It is a PowerPC64 ELF and IAMROOT_LIB_POWERPC64_MUSL_POWERPC64_1 */
+ 		if (__is_powerpc64(ehdr, ldso, abi) &&
+-		    (*ldso == 0 && abi == 2)) {
++		    (streq(ldso, "musl-powerpc64") && abi == 1)) {
+ 			lib = __xstr(PREFIX)"/lib/iamroot/powerpc64/libiamroot-musl-powerpc64.so.1";
+ 			goto access;
+ 		}
+ 
+ 		/* It is a PowerPC64 LSB ELF and IAMROOT_LIB_POWERPC64LE_MUSL_POWERPC64LE_1 */
+ 		if (__is_powerpc64le(ehdr, ldso, abi) &&
+-		    (*ldso == 0 && abi == 2)) {
++		    (streq(ldso, "musl-powerpc64le") && abi == 1)) {
+ 			lib = __xstr(PREFIX)"/lib/iamroot/powerpc64le/libiamroot-musl-powerpc64le.so.1";
+ 			goto access;
+ 		}
+-- 
+2.43.2
+
