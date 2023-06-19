@@ -1,0 +1,5 @@
+# From https://github.com/gportay/iamroot/archive/v19/iamroot-19.tar.gz
+sha256  6c55bfa952b79a0d188d7f0add2de08cd34bbe3130202da9a4c3b8d20c37b490  iamroot-19.tar.gz
+# License files, locally calculated
+sha256  20c17d8b8c48a600800dfd14f95d5cb9ff47066a9641ddeab48dc54aec96e331  LICENSE
+sha256  f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af  COPYRIGHT.musl
