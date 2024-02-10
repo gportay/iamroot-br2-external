@@ -1,5 +1,8 @@
 config BR2_PACKAGE_HOST_ARCHLINUX_KEYRING
 	bool "host archlinux-keyring"
+	select BR2_PACKAGE_HOST_PKGCONF
+	select BR2_PACKAGE_HOST_PYTHON3
+	select BR2_PACKAGE_HOST_SEQUOIA_SQ
 	help
 	  Arch Linux PGP keyring
 
