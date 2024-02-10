@@ -1,0 +1,6 @@
+config BR2_PACKAGE_HOST_ARCHRISCV_KEYRING
+	bool "host archriscv-keyring"
+	help
+	  Arch RISC-V PGP keyring
+	  
+	  https://github.com/felixonmars/archriscv-packages
