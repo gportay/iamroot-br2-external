@@ -1,0 +1,6 @@
+config BR2_PACKAGE_HOST_MANJARO_KEYRING
+	bool "host manjaro-keyring"
+	help
+	  Manjaro PGP keyring
+
+	  https://gitlab.manjaro.org/packages/core/manjaro-keyring
