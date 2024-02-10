@@ -17,6 +17,14 @@ config BR2_PACKAGE_SKELETON_PACSTRAP
 
 if BR2_PACKAGE_SKELETON_PACSTRAP
 
+#config BR2_PACKAGE_SKELETON_PACSTRAP_KEYRING_ADDITIONAL_TARGETS
+#	string "keyring additional targets"
+#	default ""
+#	help
+#	   Populate pacman keyring
+#	   Reload the default keys from the (optionally
+#	   provided) keyrings in /usr/share/pacman/keyrings.
+#
 config BR2_PACKAGE_SKELETON_PACSTRAP_CONFIGURATION
 	string "configuration file"
 	default "$(SKELETON_PACSTRAP_PKGDIR)/pacman.conf"
