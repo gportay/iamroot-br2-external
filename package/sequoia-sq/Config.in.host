@@ -1,0 +1,11 @@
+config BR2_PACKAGE_SEQUOIA_SQ
+	bool "sequoia-sq"
+	depends on BR2_PACKAGE_HOST_RUSTC_TARGET_ARCH_SUPPORTS
+	select BR2_PACKAGE_HOST_NETTLE
+	select BR2_PACKAGE_HOST_OPENSSL
+	select BR2_PACKAGE_HOST_PKGCONF
+	select BR2_PACKAGE_HOST_RUSTC
+	help
+	  sq, the Sequoia-PGP command line tool
+
+	  https://gitlab.com/sequoia-pgp/sequoia-sq
