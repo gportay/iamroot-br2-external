@@ -1,0 +1,6 @@
+config BR2_PACKAGE_HOST_ARCHPOWER_KEYRING
+	bool "host archpower-keyring"
+	help
+	  Arch POWER PGP keyring
+	  
+	  https://github.com/kth5/archpower/tree/master/archpower-keyring
