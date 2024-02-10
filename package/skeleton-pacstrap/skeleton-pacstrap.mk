@@ -6,7 +6,7 @@
 
 SKELETON_PACSTRAP_INSTALL_STAGING = YES
 
-SKELETON_PACSTRAP_DEPENDENCIES = host-arch-install-scripts host-iamroot host-pacman host-pacman-mirrorlist
+SKELETON_PACSTRAP_DEPENDENCIES = host-arch-install-scripts host-iamroot host-pacman
 
 ifeq ($(BR2_PACKAGE_HOST_ARCHLINUX_KEYRING),y)
 SKELETON_PACSTRAP_DEPENDENCIES += host-archlinux-keyring
