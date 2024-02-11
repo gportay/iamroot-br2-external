@@ -1,0 +1,6 @@
+config BR2_PACKAGE_HOST_ARCHLINUX32_KEYRING
+	bool "host archlinux32-keyring"
+	help
+	  Arch Linux 32 PGP keyring
+
+	  https://git.archlinux32.org/archlinux32-keyring
