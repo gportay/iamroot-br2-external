@@ -1,4 +1,5 @@
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinux-keyring/Config.in.host"
+source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinux32-keyring/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archlinuxarm-keyring/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archpower-keyring/Config.in.host"
 source "$BR2_EXTERNAL_IAMROOT_PATH/package/archriscv-keyring/Config.in.host"
