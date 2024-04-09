@@ -1,5 +1,5 @@
-# From https://github.com/gportay/iamroot/archive/v20/iamroot-20.tar.gz
-sha256  27c3019135fce9359a7e7ff6abb0501108c4881e6c57609f4c14d0fb91f17eec  iamroot-20.tar.gz
+# From https://github.com/gportay/iamroot/archive/v21/iamroot-21.tar.gz
+sha256  3bbdc8b53a4e1e0a88d2aa281fd85bd4e3653c7634060d6b7442c932dae03b07  iamroot-21.tar.gz
 # License files, locally calculated
 sha256  20c17d8b8c48a600800dfd14f95d5cb9ff47066a9641ddeab48dc54aec96e331  LICENSE
 sha256  f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af  COPYRIGHT.musl
