@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-IAMROOT_VERSION = 21
+IAMROOT_VERSION = 22
 IAMROOT_SITE = $(call github,gportay,iamroot,v$(IAMROOT_VERSION))
 IAMROOT_LICENSE = LGPL-2.1+, and MIT (contains sources from musl)
 IAMROOT_LICENSE_FILES = LICENSE COPYRIGHT.musl
