@@ -13,6 +13,7 @@ update-defconfig:
 	$(foreach defconfig,$(wildcard configs/*_defconfig), \
 		$(MAKE) -f Makefile O=$(CURDIR)/output-$@ $(notdir $(defconfig)) savedefconfig && \
 	) \
+	rm -Rf $(CURDIR)/output-$@ && \
 	echo "completed!"
 
 .PHONY: defconfigs
