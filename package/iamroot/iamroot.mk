@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-IAMROOT_VERSION = 22
+IAMROOT_VERSION = 23
 IAMROOT_SITE = $(call github,gportay,iamroot,v$(IAMROOT_VERSION))
-IAMROOT_LICENSE = LGPL-2.1+, and MIT (contains sources from musl)
+IAMROOT_LICENSE = LGPL-2.1+, BSD-3-Clause (contains fts sources from NetBSD), and MIT (contains sources from musl)
 IAMROOT_LICENSE_FILES = LICENSE COPYRIGHT.musl
 
 HOST_IAMROOT_DEPENDENCIES += toolchain
@@ -215,8 +215,10 @@ ifeq ($(HOST_IAMROOT_TARGET_LIB),)
 $(error The toolchain is not supported. Report this failure to the package developer)
 endif
 
+IAMROOT_TARGET_CFLAGS = -DJIM_REGEXP
+
 ifeq ($(BR2_i386),y)
-IAMROOT_TARGET_CFLAGS = -fno-stack-protector
+IAMROOT_TARGET_CFLAGS += -fno-stack-protector
 endif # BR2_i386
 
 define HOST_IAMROOT_BUILD_CMDS
